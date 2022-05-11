@@ -1,5 +1,5 @@
 [package]
-name = "lending_project"
+name = "stable_coin_contract"
 version = "1.0.0"
 authors = ["Supercolony <green.baneling@supercolony.net, dominik.krizo@supercolony.net>"]
 edition = "2021"
@@ -16,14 +16,14 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 # These dependencies
-lending_project_derive = { path = "derive" }
-brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22", "psp34", "ownable", "pausable", "access_control"] }
+lending_project = { path = "../..", default-features = false }
+brush = { tag = "v1.6.1", git = "https://github.com/Supercolony-net/openbrush-contracts", default-features = false, features = ["psp22"] }
 
 [lib]
-name = "lending_project"
+name = "stable_coin_contract"
 path = "lib.rs"
 crate-type = [
-    "rlib",
+    "cdylib",
 ]
 
 [features]
@@ -40,8 +40,10 @@ std = [
     "scale-info/std",
 
     # These dependencies
+    "lending_project/std",
     "brush/std",
 ]
+ink-as-dependency = []
 
 [profile.dev]
 codegen-units = 16

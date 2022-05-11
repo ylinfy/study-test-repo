@@ -7,8 +7,8 @@ pub trait ElcAim {
     fn get_elcaim(&self) -> u128;
 
     #[ink(message)]
-    fn update_elcaim(&mut self, _cycle: u64) -> u128; 
+    fn update_elcaim(&mut self, _cycle: u128) -> u128; 
 
     #[ink(message)]
-    fn set_k(&mut self, _newk: u64);
+    fn set_k(&mut self, _newk: u128);
 }

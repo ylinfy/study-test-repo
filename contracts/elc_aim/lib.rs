@@ -8,12 +8,17 @@ pub mod elc_aim {
     //     // access_control::*,
     // };
     // use brush::modifiers;
-    use elc_proj::traits::elc_aim::*;
+    use lending_project::traits::elc_aim::*;
+    use ink_storage::{
+        traits::SpreadAllocate,
+    };
+    use ink_lang::codegen::Env;
 
     // const StabCaller: RoleType = ink_lang::selector_id!("StabCaller");
 
     #[ink(storage)]
     // #[derive(OwnableStorage)] // , AccessControlStorage)]
+    #[derive(SpreadAllocate)]
     pub struct ElcAimContract {
         // #[OwnableStorageField]
         // ownable: OwnableData,
@@ -21,12 +26,12 @@ pub mod elc_aim {
         // access: AccessControlData,
 
         /// Adjustment cycle: 60000s
-        k_cycle: u64,
+        k_cycle: u128,
         /// K value setting caller
         stabilization_cyn: AccountId,
         aim: u128,
-        timestamp: u64,
-        k: u64,      
+        timestamp: u128,
+        k: u128,      
     }
 
     // impl Ownable for ElcAimContract {}
@@ -36,23 +41,23 @@ pub mod elc_aim {
         fn get_elcaim(&self) -> u128 {
             let mut cycle = 0;
             let (mut _elcaim, _k) = (self.aim, self.k);
-            let now = self.env().block_timestamp();
+            let now: u128 = self.env().block_timestamp().into();
 
             if now > self.timestamp {
                 cycle = (now - self.timestamp) / self.k_cycle; 
             }
 
-            for i in 0..cycle {
-                _elcaim = _elcaim * (_k + 1e6 as u64) / 1e6 as u64;
+            for _ in 0..cycle {
+                _elcaim = _elcaim * (_k + 1e6 as u128) / 1e6 as u128;
             }
             _elcaim
         }
 
         #[ink(message)]
-        fn update_elcaim(&mut self, _cycle: u64) -> u128 {
+        fn update_elcaim(&mut self, _cycle: u128) -> u128 {
             let mut cycle = 0;
             let (mut _elcaim, _k) = (self.aim, self.k);
-            let now = self.env().block_timestamp();
+            let now: u128 = self.env().block_timestamp().into();
 
             if now > self.timestamp {
                 cycle = (now - self.timestamp) / self.k_cycle; 
@@ -60,8 +65,8 @@ pub mod elc_aim {
 
             if cycle == 0 { return _elcaim }
             if cycle > _cycle && _cycle > 0 { cycle = _cycle }
-            for i in 0..cycle {
-                _elcaim = _elcaim * (_k + 1e6 as u64) / 1e6 as u64;
+            for _ in 0..cycle {
+                _elcaim = _elcaim * (_k + 1e6 as u128) / 1e6 as u128;
             }
 
             self.aim = _elcaim;
@@ -70,7 +75,7 @@ pub mod elc_aim {
         }
 
         #[ink(message)]
-        fn set_k(&mut self, _newk: u64) {
+        fn set_k(&mut self, _newk: u128) {
             assert!(self.stabilization_cyn == self.env().caller(), "Only stabilizationCYN can set K");
             self.k = _newk;
         }
@@ -83,7 +88,7 @@ pub mod elc_aim {
                 instance.k_cycle = 60000;
                 instance.stabilization_cyn = _stabilization_cyn;
                 instance.aim = 1e8 as u128;
-                instance.timestamp = Self::env().block_timestamp();
+                instance.timestamp = Self::env().block_timestamp().into();
                 instance.k = 50;
             })
         }
